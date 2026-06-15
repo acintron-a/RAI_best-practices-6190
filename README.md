@@ -47,7 +47,7 @@ Due to the size of this dataset, loading and writing data partitions locally can
 
 ### Milestone 1: Data Ingestion + EDA (Batch/Offline Layer)
 * **Objective:** Ingest the clinical dataset using Spark’s Structured DataFrame API, analyze demographic representations, perform baseline model training, and compute sample-reweighing mitigation factors.
-* **Approach:** * Parse and handle the raw clinical dataset using explicit schemas to prevent data corruption during type casting.
+* **Approach:** Parse and handle the raw clinical dataset using explicit schemas to prevent data corruption during type casting.
   * Execute distributed `.groupBy()` aggregations to calculate historical baseline re-admission rates across sensitive demographic cohorts (`race` and `gender`).
   * Train an unweighted baseline `pyspark.ml.classification.DecisionTreeClassifier` and output test predictions into a local `fairlearn.metrics.MetricFrame` to document "Pre-Mitigation" discrepancies in False Negative Rates (FNR) and Selection Rates.
   * Use Spark DataFrame transformations to calculate inverse-probability reweighing variables that balance representation across groups, appending a computed `bias_mitigation_weight` column back into the distributed training matrix.
