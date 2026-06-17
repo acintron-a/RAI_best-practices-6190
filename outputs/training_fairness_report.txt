@@ -1,0 +1,44 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+26/06/17 16:04:24 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/06/17 16:04:30 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
+--- STAGE 1 & 2: INGESTION AND DISPARITY AUDITING ---
+
+[FAIRLEARN AUDIT] METRICS BEFORE IN-PROCESSING MITIGATION:
+                 FNR  Selection_Rate
+race                                
+AfricanAmerican  1.0             0.0
+Asian            1.0             0.0
+Caucasian        1.0             0.0
+Hispanic         1.0             0.0
+Other            1.0             0.0
+Unknown          1.0             0.0
+  Max FNR Disparity (difference): FNR               0.0
+Selection_Rate    0.0
+dtype: float64
+  Max FNR Disparity (ratio):      FNR               1.0
+Selection_Rate    NaN
+dtype: float64
+
+--- STAGE 3: IN-PROCESSING MITIGATION VIA BIAS REWEIGHING ---
+
+[FAIRLEARN AUDIT] METRICS AFTER IN-PROCESSING MITIGATION:
+                 FNR  Selection_Rate
+race                                
+AfricanAmerican  1.0             0.0
+Asian            1.0             0.0
+Caucasian        1.0             0.0
+Hispanic         1.0             0.0
+Other            1.0             0.0
+Unknown          1.0             0.0
+  Max FNR Disparity (difference): FNR               0.0
+Selection_Rate    0.0
+dtype: float64
+  Max FNR Disparity (ratio):      FNR               1.0
+Selection_Rate    NaN
+dtype: float64
+
+--- STAGE 4: PERSISTING PIPELINE MODEL SANAPSHOT ---
+Mitigated PipelineModel successfully serialized to folder: 'outputs/models/fair_diabetes_model'
