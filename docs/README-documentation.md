@@ -1,8 +1,9 @@
 # Documentation Guide
 
-Welcome to the documentation for this project! If you are new to the repository, we recommend reading the files in this directory in the following order to get a comprehensive understanding of the project's background, approach, and outcomes:
+Welcome to the documentation for *Best-Practices in Algorithmic Fairness*.
+We recommend reading the files in this directory in the following order to get a comprehensive understanding of this project's background, approach, and outcomes:
 
-1. **[dataset_overview.md](dataset_overview.md)**  
+1. **[Dataset Overview](dataset_overview.md)**  
    Start here to understand the data used in this project. This document covers the source, schema, distribution, and fairness considerations of the dataset.
 
 2. **[methodology.md](methodology.md)**  
