@@ -2,7 +2,7 @@
 
 Evaluating our decision tree models on the holdout test dataset shows a clear shift in fairness metrics when applying sample-reweighing mitigation.
 
-## Metrics Comparison (Pre vs. Post Mitigation)
+## Metrics Comparison (Prior versus Post Mitigation)
 
 Below is a comparison of False Negative Rates (FNR) and Selection Rates across demographic cohorts:
 
