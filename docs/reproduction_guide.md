@@ -39,3 +39,5 @@ Open another terminal window and run the real-time inference engine:
 python src/streaming.py
 ```
 This script will connect to the socket, apply the saved PipelineModel, and output real-time metric updates (Selection Rates and False Negative Rates by Race) to the console for every micro-batch. All predictions will be logged under `outputs/project_live_fairness_logs`.
+
+[Return to Documentation Guide](./README-documentation.md)

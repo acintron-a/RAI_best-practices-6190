@@ -16,3 +16,5 @@ Below is a comparison of False Negative Rates (FNR) and Selection Rates across d
 1. **FNR Reduction**: The difference in FNR between demographic groups (e.g., African American vs. Caucasian cohorts) decreases significantly under the mitigated model. This ensures that underserved groups do not suffer from disproportionate false negatives (unpredicted readmissions leading to lack of follow-up care).
 2. **Selection Rate Balancing**: The selection rate ratio moves closer to parity, meaning the model's recommendation for post-discharge intervention is distributed more equitably.
 3. **The Fairness-Utility Trade-off**: The substantial improvement in fairness comes at an extremely minor cost to overall classification accuracy, demonstrating that algorithmic fairness constraints can be integrated into clinical workflows without sacrificing utility.
+
+[Return to Documentation Guide](./README-documentation.md)

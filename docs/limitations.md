@@ -12,3 +12,5 @@ While our reweighing intervention successfully reduces demographic disparities i
 ## 3. Streaming and Live Drift
 * Structured Streaming metrics are calculated per micro-batch. In a live production setting, if the distribution of incoming patient demographics shifts rapidly, the static offline weights computed during training may become stale, leading to **Model and Fairness Drift**.
 * Future work should implement adaptive weighting systems or regular automated model re-training jobs triggered by live drift detection thresholds.
+
+[Return to Documentation Guide](./README-documentation.md)

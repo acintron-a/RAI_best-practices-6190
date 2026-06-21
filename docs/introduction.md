@@ -1,13 +1,12 @@
 # Introduction 
 
-## Fairness Context
+This project is motivated by "Algorithmic Fairness," a subfield of artificial intelligence and machine learning dedicated to ensuring that automated decision-making systems do not discriminate against individuals based on protected or sensitive traits (e.g., race, gender, age, or socioeconomic status).
 
-In a healthcare setting, hospital readmission prediction models are often used to allocate resources, such as enrolling high-risk patients in post-discharge care management programs. 
-If the prediction model suffers from demographic bias—underpredicting readmission risks for specific groups—it leads to **Allocation Harm** where critical post-discharge care is unfairly withheld from historically underserved populations.
+To explore these concepts, we utilize the `fetch_diabetes_hospital` dataset from the `fairlearn` Python module (more details about this data are available in `dataset_overview.md`). In healthcare settings, hospital readmission prediction models are frequently used to allocate limited resources, such as enrolling high-risk patients in specialized post-discharge care programs. 
 
-This project is motivated by a subfield of artificial intelligence and machine learning called “Algorithmic Fairness”, which is dedicated to ensure that automated decision-making systems do not discriminate against individuals or groups based on protected or sensitive traits (e.g., race, gender, age, socioeconomic status, etc.).
+If a prediction model suffers from demographic bias—such as underpredicting readmission risks for specific groups—it can lead to **Allocation Harm**, where critical care is unfairly withheld from historically underserved populations.
 
-Sensitive features are determined by human beings while addressing: “Which groups of individuals are at risk of experiencing harm from a machine learning model?”
+To prevent this, sensitive features are determined by human practitioners by asking: "Which groups of individuals are at risk of experiencing harm from this machine learning model?"
 
 There are three main criteria in the determination process:
 
@@ -15,12 +14,12 @@ There are three main criteria in the determination process:
 In many traditional use cases (such as lending, housing, and hiring), sensitive features are dictated by anti-discrimination laws.
 
 * Under frameworks like the US Civil Rights Act or the EU General Data Protection Regulation (GDPR), certain characteristics are designated as **"protected classes."**
-* This is why datasets like `fetch_credit_card()` inherently label variables like **Sex, Race, and Age** are classified as sensitive features. The law explicitly forbids using these attributes to deny people baseline opportunities.
+* This is why datasets like `fetch_diabetes_hospital()` inherently label variables like **Race, Gender, and Age** as sensitive features. The law explicitly forbids using these attributes to deny people baseline opportunities or care.
 ### 2. The Type of Algorithmic Harm Being Assessed
 The type of harm dictates what feature becomes "sensitive":
 
 * **Allocation Harms:** Occur when an AI system unfairly extends or withholds opportunities, resources, or information.
-* *Example:* In `fetch_credit_card()`, **Age** and **Marriage Status** are designated as sensitive because a bank's model might unfairly withhold credit lines from younger or single applicants.
+* *Example:* In `fetch_diabetes_hospital()`, **Race** and **Gender** are designated as sensitive because a healthcare model might unfairly withhold post-discharge care programs from specific demographic groups.
 
 * **Quality of Service Harms:** Occur when an AI system simply works much better for one group of people than another, even if no money or resources are explicitly on the line.
 * *Example:* In a speech-to-text algorithm or facial recognition system, **Native Language Status** or skin tone (**Melanin Content**) would be determined as the sensitive features, because the technical performance of the model risks degrading for those specific sub-populations.
@@ -32,6 +31,8 @@ Sometimes, a sensitive feature has nothing to do with demographics. It is determ
 * In a healthcare setting (like Fairlearn's `fetch_diabetes_hospital()` dataset), features like **Insurance Type (Medicare/Medicaid)** are designated as sensitive features.
 * While having Medicaid is not an immutable demographic trait, an algorithm that unintentionally prioritizes commercially insured patients over Medicaid patients for hospital re-admission care would create a massive systemic inequality.
 
+
+## Machine Learning Fairness Contexts (Table)
 In the table below we summarize machine learning model types and some fairness context.
 
 | Machine Learning Type | Fairness Instance | Case Details / Notes | Reference |
@@ -42,3 +43,5 @@ In the table below we summarize machine learning model types and some fairness c
 | **Recommendation** | Targeted Advertising | <ul><li>Recommendations produced by biased models may amplify bias.</li><li>Experiment: Different ad settings led to different frequency of high paying jobs shown.</li><li>Require multi-sided fairness or sequential recommendations.</li></ul> | Pitoura, E., Stefanidis, K., & Koutrika, G. (2021). Fairness in rankings and recommendations: An overview. arXiv. https://doi.org/10.48550/arXiv.2104.05994 |
 | **Clustering** | Fair Hiring | <ul><li>Cluster resumes for shortlist in a hiring scenario.</li><li>Callback rates may differ per group (incorporate fairness constraints in optimization).</li><li>Aim for proportional representation of the sensitive class per cluster.</li></ul> | Abraham, Savitha Sam, Deepak P., and Sanil V. "Fairness in Clustering with Multiple Sensitive Attributes." Proceedings of the 23rd International Conference on Extending Database Technology (EDBT) (2020). / arXiv:1910.05113. |
 | **Anomaly Detection** | Government Relief Fund | <ul><li>Small fraction of COVID relief direct payments experience fraud.</li><li>Scale of money allocation makes traditional tracking impossible.</li><li>Outliers should not be skewed towards a particular group.</li></ul> | Deepak, P., and Savitha Sam Abraham. "FairLOF: Fairness in Outlier Detection." Applied Intelligence 51, no. 12 (2021). / doi:10.1007/s41019-021-00169-x. |
+
+[Return to Documentation Guide](./README-documentation.md)
