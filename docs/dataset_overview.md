@@ -37,11 +37,3 @@ The dataset contains the following variables used in the bias-mitigation and rea
 | **readmit_30_days** | Binary | Target Label | Was the patient re-admitted to the hospital within 30 days? | True, False |
 
 [Return to Documentation Guide](./README-documentation.md)
-
-## Fairness Context
-
-In a healthcare setting, hospital readmission prediction models are often used to allocate resources, such as enrolling high-risk patients in post-discharge care management programs. 
-If the prediction model suffers from demographic bias—underpredicting readmission risks for specific groups—it leads to **Allocation Harm** where critical post-discharge care is unfairly withheld from historically underserved populations.
-
-
-[def]: ./README-documentation.md
