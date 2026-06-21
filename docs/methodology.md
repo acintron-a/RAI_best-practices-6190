@@ -32,7 +32,24 @@ Where:
 * $P(A)$ is the baseline probability of sensitive group $A$.
 * $P(Y, A)$ is the joint probability of label $Y$ and group $A$.
 
+This formula is fundamentally related to **conditional probability**. Since the joint probability $P(Y, A)$ can be expressed as $P(Y|A) \times P(A)$, the weighting equation mathematically simplifies to:
+
+$$W(Y, A) = \frac{P(Y)}{P(Y|A)}$$
+
+By using this ratio, we are scaling the importance of a patient record based on how much the conditional probability of their outcome given their demographic group, $P(Y|A)$, deviates from the overall baseline probability of the outcome, $P(Y)$.
+
 Applying these weights during training forces the decision boundary of the MLlib classifier to treat demographic cohorts with equal importance, effectively breaking the correlation between demographic attributes and prediction outcomes.
+
+### Spark Implementation of Weights
+
+The IPW weights are calculated manually (not using fairness libraries) for distributed scalability using native PySpark DataFrame operations. The baseline probabilities are aggregated and joined, and the final weight is computed as a new column:
+
+```python
+weights_lookup = p_ya.join(p_y, on="readmit_30_days").join(p_a, on="race") \
+    .withColumn("bias_mitigation_weight", (F.col("p_y") * F.col("p_a")) / F.col("p_ya"))
+```
+
+This `bias_mitigation_weight` column is then natively passed into the PySpark `DecisionTreeClassifier` via the `weightCol` parameter.
 
 ## 3. Spark Performance Optimizations
 
