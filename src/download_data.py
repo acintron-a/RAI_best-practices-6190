@@ -1,4 +1,6 @@
-# download_data.py
+### download_data.py
+### This script file was used to extract the dataset
+### from a Python module called `fairlearn`. The dataset is about diabetes and hospital readmissions.
 import os
 from fairlearn.datasets import fetch_diabetes_hospital
 
