@@ -1,0 +1,4 @@
+race,gender,time_in_hospital,num_medications,readmit_30_days
+Caucasian,Female,2,22,1
+Caucasian,Male,7,18,0
+AfricanAmerican,Female,9,22,0

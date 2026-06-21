@@ -1,0 +1,2 @@
+race,gender,time_in_hospital,num_medications,readmit_30_days,prediction
+Unknown,Male,6,16,0,0.0

@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 from pyspark.sql import SparkSession
@@ -8,7 +7,7 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType, 
 from pyspark.ml import PipelineModel
 
 # -------------------------------------------------------------------------
-# ENVIRONMENT SETUP (From Lab HO-L8 templates to ensure JVM compatibility)
+# ENVIRONMENT SETUP (Ensuring JVM compatibility as in templates)
 # -------------------------------------------------------------------------
 if os.path.exists("/usr/libexec/java_home"):
     try:
@@ -27,103 +26,96 @@ os.environ["PYSPARK_SUBMIT_ARGS"] = (
     "--add-opens=java.base/java.util=ALL-UNNAMED "
     "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED "
     "--add-opens=java.base/java.util.logging=ALL-UNNAMED "
-    "--add-opens=java.base/java.security=ALL-UNNAMED "
+    "--add-opens=java.security/java.security=ALL-UNNAMED "
     "--add-opens=java.base/sun.misc=ALL-UNNAMED "
     "\" pyspark-shell"
 )
 
-# -------------------------------------------------------------------------
-# CORE STREAMING APPLICATION
-# -------------------------------------------------------------------------
+def run_streaming(host="localhost", port=9999, model_dir="outputs/models/fair_diabetes_model", output_logs="outputs/project_live_fairness_logs"):
+    print("Initializing low-latency Structured Streaming session...")
+    spark = SparkSession.builder \
+        .appName("DiabetesRealTimeInferenceAndFairnessMonitor") \
+        .config("spark.sql.shuffle.partitions", "2") \
+        .getOrCreate()
 
-# Initialize low-latency streaming Spark engine
-spark = SparkSession.builder \
-    .appName("DiabetesRealTimeInferenceAndFairnessMonitor") \
-    .config("spark.sql.shuffle.partitions", "2") \
-    .getOrCreate()
+    # Define the schema matching patient_generator.py output
+    patient_schema = StructType([
+        StructField("race", StringType(), True),
+        StructField("gender", StringType(), True),
+        StructField("time_in_hospital", IntegerType(), True),
+        StructField("num_medications", IntegerType(), True),
+        StructField("readmit_30_days", IntegerType(), True),
+        StructField("timestamp", StringType(), True)
+    ])
 
-# 1. Define the Schema matching the exact output of patient_generator.py
-patient_schema = StructType([
-    StructField("race", StringType(), True),
-    StructField("gender", StringType(), True),
-    StructField("time_in_hospital", IntegerType(), True),  # Matches the int() cast in the generator
-    StructField("num_medications", IntegerType(), True),   # Matches the int() cast in the generator
-    StructField("readmit_30_days", IntegerType(), True),   # Ground truth label for live FNR computation
-    StructField("timestamp", StringType(), True)
-])
+    print(f"Connecting to Structured Streaming socket source at {host}:{port}...")
+    raw_stream = spark.readStream \
+        .format("socket") \
+        .option("host", host) \
+        .option("port", port) \
+        .load()
 
-print("--- STAGE 5: INITIALIZING STRUCTURED STREAMING SOCKET SOURCE ---")
-# Establish connection to live patient network generator
-raw_stream = spark.readStream \
-    .format("socket") \
-    .option("host", "localhost") \
-    .option("port", 9999) \
-    .load()
+    # Parse incoming raw JSON string using the schema
+    parsed_patients = raw_stream.selectExpr("CAST(value AS STRING)") \
+        .select(from_json(col("value"), patient_schema).alias("data")) \
+        .select("data.*")
 
-# Parse the incoming raw JSON stream using the explicit schema
-parsed_patients = raw_stream.selectExpr("CAST(value AS STRING)") \
-    .select(from_json(col("value"), patient_schema).alias("data")) \
-    .select("data.*")
+    # Cast timestamp
+    parsed_patients = parsed_patients.withColumn("timestamp", col("timestamp").cast(TimestampType()))
 
-# Convert timestamp column to proper timestamp formatting
-parsed_patients = parsed_patients.withColumn("timestamp", col("timestamp").cast(TimestampType()))
+    print(f"Loading pre-trained bias-mitigated PipelineModel from: {model_dir}")
+    if not os.path.exists(model_dir):
+        raise FileNotFoundError(f"Trained model not found at: {model_dir}. Please run the training script first.")
 
-print("--- STAGE 6: APPLICATION OF LIVE ML PIPELINE MODEL ---")
-# Load the pre-trained, bias-mitigated PipelineModel saved by project_train.py
-MODEL_DIR = "outputs/models/fair_diabetes_model"
-try:
-    fair_pipeline_model = PipelineModel.load(MODEL_DIR)
-except Exception as e:
-    print(f"\nCRITICAL ERROR: Could not load model from '{MODEL_DIR}'.")
-    print("Did you run the batch training script (`project_train.py`) first to generate the model?")
-    raise e
+    fair_pipeline_model = PipelineModel.load(model_dir)
 
-# Apply the ML model directly onto the incoming data stream
-predictions_stream = fair_pipeline_model.transform(parsed_patients)
+    # Apply the pipeline model to the streaming DataFrame
+    predictions_stream = fair_pipeline_model.transform(parsed_patients)
 
-print("--- STAGE 7: STREAMING AGGREGATION & REAL-TIME DRIFT MONITORING ---")
+    # Custom micro-batch processing logic to evaluate metrics and dump logs
+    def process_micro_batch(batch_df, batch_id):
+        print(f"\n=======================================================")
+        print(f" LIVE SYSTEM FAIRNESS MONITOR AUDIT - BATCH WINDOW: {batch_id}")
+        print(f"=======================================================")
 
-# Custom callback function to evaluate streaming fairness metrics per micro-batch
-def process_micro_batch(batch_df, batch_id):
-    print(f"\n=======================================================")
-    print(f" LIVE SYSTEM FAIRNESS MONITOR AUDIT - BATCH WINDOW: {batch_id}")
-    print(f"=======================================================")
+        if batch_df.isEmpty():
+            print("  (empty micro-batch — awaiting incoming patient stream data)")
+            return
 
-    if batch_df.isEmpty():
-        print("  (empty batch — awaiting patient data)")
-        return
+        # 1. Print Selection Rate by Race
+        print("\n[SELECTION RATES] Real-time decision distribution by demographic group:")
+        batch_df.groupBy("race", "prediction").count() \
+            .orderBy("race", "prediction").show(truncate=False)
 
-    # --- Selection Rate Distribution ---
-    print("\n[SELECTION RATES] Prediction distribution by demographic group:")
-    batch_df.groupBy("race", "prediction").count() \
-        .orderBy("race", "prediction").show(truncate=False)
+        # 2. Print Live False Negative Rate (FNR) by Race
+        actual_positives = batch_df.filter(col("readmit_30_days") == 1)
+        ap_count = actual_positives.count()
 
-    # --- Live False Negative Rate (FNR) by Race ---
-    # FNR = FalseNegatives / ActualPositives = count(actual=1, pred=0) / count(actual=1)
-    actual_positives = batch_df.filter(col("readmit_30_days") == 1)
-    ap_count = actual_positives.count()
+        if ap_count > 0:
+            fnr_by_race = actual_positives.groupBy("race").agg(
+                F.count("*").alias("actual_positives"),
+                F.sum(F.when(col("prediction") == 0.0, 1).otherwise(0)).alias("false_negatives")
+            ).withColumn("FNR", F.round(col("false_negatives") / col("actual_positives"), 4))
 
-    if ap_count > 0:
-        fnr_by_race = actual_positives.groupBy("race").agg(
-            F.count("*").alias("actual_positives"),
-            F.sum(F.when(col("prediction") == 0.0, 1).otherwise(0)).alias("false_negatives")
-        ).withColumn("FNR", F.round(col("false_negatives") / col("actual_positives"), 4))
+            print("[FALSE NEGATIVE RATES] Real-time FNR by demographic group:")
+            fnr_by_race.orderBy("race").show(truncate=False)
+        else:
+            print("  No actual positive labels in this micro-batch; FNR cannot be computed.")
 
-        print("[FALSE NEGATIVE RATES] Live FNR by demographic group:")
-        fnr_by_race.orderBy("race").show(truncate=False)
-    else:
-        print("  No actual positives in this batch — FNR not computable.")
+        # 3. Append predictions to historical logs directory
+        print(f"Appending micro-batch outcomes to: {output_logs}")
+        batch_df.select("race", "gender", "time_in_hospital", "num_medications", "readmit_30_days", "prediction").coalesce(1).write \
+            .mode("append") \
+            .option("header", "true") \
+            .csv(output_logs)
 
-    # Save raw predictions to disk for historical model drift tracking
-    batch_df.select("race", "readmit_30_days", "prediction").coalesce(1).write \
-        .mode("append") \
-        .option("header", "true") \
-        .csv("outputs/project_live_fairness_logs")
+    # Execute stream with foreachBatch
+    query = predictions_stream.writeStream \
+        .outputMode("append") \
+        .foreachBatch(process_micro_batch) \
+        .start()
 
-# Execute streaming pipeline using foreachBatch on raw predictions for full metric access
-query = predictions_stream.writeStream \
-    .outputMode("append") \
-    .foreachBatch(process_micro_batch) \
-    .start()
+    query.awaitTermination()
 
-query.awaitTermination()
+if __name__ == "__main__":
+    run_streaming()

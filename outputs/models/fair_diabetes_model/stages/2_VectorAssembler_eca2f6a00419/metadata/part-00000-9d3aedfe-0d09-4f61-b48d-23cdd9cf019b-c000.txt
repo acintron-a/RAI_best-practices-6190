@@ -1,1 +1,0 @@
-{"class":"org.apache.spark.ml.feature.VectorAssembler","timestamp":1781726677178,"sparkVersion":"4.1.2","uid":"VectorAssembler_eca2f6a00419","paramMap":{"inputCols":["time_in_hospital","num_medications","race_index","gender_index"],"outputCol":"features"},"defaultParamMap":{"handleInvalid":"error","outputCol":"VectorAssembler_eca2f6a00419__output"}}

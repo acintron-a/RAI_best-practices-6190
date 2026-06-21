@@ -1,0 +1,2 @@
+race,gender,time_in_hospital,num_medications,readmit_30_days,prediction
+Caucasian,Female,3,21,1,0.0
