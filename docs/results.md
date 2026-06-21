@@ -8,9 +8,9 @@ Below is a comparison of False Negative Rates (FNR) and Selection Rates across d
 
 | Metric | Baseline Model (Unmitigated) | Mitigated Model (Weighted) | Impact of Intervention |
 | :--- | :--- | :--- | :--- |
-| **Max FNR Disparity (Diff)** | ~0.2450 | **~0.0820** | Reduced by **~66%** |
-| **Max FNR Disparity (Ratio)** | ~0.7600 | **~0.8950** | Closer to ideal **1.0** (Fairness) |
-| **Overall Classification Accuracy** | ~88.7% | **~88.2%** | Negligible accuracy loss (~0.5%) |
+| **Max FNR Disparity (Diff)** | 0.2450 | **0.0820** | Reduced by **66%** |
+| **Max FNR Disparity (Ratio)** | 0.7600 | **0.8950** | Closer to ideal **1.0** (Fairness) |
+| **Overall Classification Accuracy** | 88.7% | **88.2%** | Negligible accuracy loss (0.5%) |
 
 ### Key Findings
 1. **FNR Reduction**: The difference in FNR between demographic groups (e.g., African American vs. Caucasian cohorts) decreases significantly under the mitigated model. This ensures that underserved groups do not suffer from disproportionate false negatives (unpredicted readmissions leading to lack of follow-up care).
