@@ -32,7 +32,7 @@ Sometimes, a sensitive feature has nothing to do with demographics. It is determ
 * While having Medicaid is not an immutable demographic trait, an algorithm that unintentionally prioritizes commercially insured patients over Medicaid patients for hospital re-admission care would create a massive systemic inequality.
 
 
-## Machine Learning Fairness Contexts (Table)
+# Machine Learning Fairness Contexts (Table)
 In the table below we summarize machine learning model types and some fairness context.
 
 | Machine Learning Type | Fairness Instance | Case Details / Notes | Reference |
