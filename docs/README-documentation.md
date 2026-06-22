@@ -21,4 +21,3 @@ We recommend reading the files in this directory in the following order to get a
 6. **[Reproducibility Guide](reproduction_guide.md)**  
    Finally, when you are ready to run the code yourself, this guide provides the step-by-step instructions to set up the environment and reproduce the pipeline locally.
 
-> **Note**: The `slides/` directory contains presentation materials summarizing the project's key findings for a broader audience.
