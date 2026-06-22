@@ -42,7 +42,7 @@ Applying these weights during training forces the decision boundary of the MLlib
 
 ### Spark Implementation of Weights
 
-The IPW weights are calculated manually (not using fairness libraries) for distributed scalability using native PySpark DataFrame operations. The baseline probabilities are calculated using `.groupBy()` aggregations. Computing the joint probability $P(Y, A)$ by grouping on both the target label and the sensitive feature is mathematically equivalent to constructing a **contingency table** (or two-way frequency table) to derive the relative frequencies. 
+The IPW weights are calculated manually (not using methods in the fairness module) for distributed scalability using native PySpark DataFrame operations. The baseline probabilities are calculated using `.groupBy()` aggregations. Computing the joint probability $P(Y, A)$ by grouping on both the target label and the sensitive feature is mathematically equivalent to constructing a **contingency table** (or two-way frequency table) to derive the relative frequencies. 
 
 These aggregated probabilities are then joined, and the final weight is computed as a new column:
 
