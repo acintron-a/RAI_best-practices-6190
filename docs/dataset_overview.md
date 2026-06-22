@@ -36,4 +36,8 @@ The dataset contains the following variables used in the bias-mitigation and rea
 | **had_outpatient_days** | Binary | Feature | Patient had outpatient clinic visits in the prior year | True, False |
 | **readmit_30_days** | Binary | Target Label | Was the patient re-admitted to the hospital within 30 days? | True, False |
 
+## Exploratory Data Analysis
+An exploratory data analysis is carry out to get a sense of patterns in the dataset and to identify potential issues such as missing values, outliers, and underrepresentation, see the following link [EDA](../notebooks/exploration_analysis.ipynb) for more details.
+
+
 [Return to Documentation Guide](./README-documentation.md)
